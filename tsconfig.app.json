@@ -10,7 +10,7 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
@@ -19,9 +19,21 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
+    "erasableSyntaxOnly": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "agro-core": [
+        "./node_modules/agro-core/dist/index.d.ts"
+      ],
+      "@domain/*": ["./src/domain/*"],
+      "@fb/*": ["./src/firebase/*"],
+      "@usecases/*": ["./src/usecases/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@App/*": ["./src/App/*"],
+      "@generalTypes/*": ["./src/types/*"],
+      "@components/*": ["./src/components/*"],
+    }
   },
   "include": ["src"]
 }
