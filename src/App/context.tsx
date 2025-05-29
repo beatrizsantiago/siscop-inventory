@@ -26,14 +26,13 @@ const InventoryProvider = ({ children }: InventoryProviderProps) => {
     try {
       const getUserCase = new GetInventoryUseCase(firebaseInventory);
       const list = await getUserCase.execute();
-      console.log(list);
       
       dispatch({
         type: 'SET_INVENTORY',
         list,
       });
     } catch {
-      toast.error('Erro ao carregar produtos');
+      toast.error('Erro ao carregar o estoque. Tente novamente mais tarde.');
     }
   }, []);
 
