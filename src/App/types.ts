@@ -5,7 +5,8 @@ export type State = {
   loading: boolean,
 };
 
-export type ActionType = { type: 'SET_INVENTORY', list: Inventory[] };
+export type ActionType = { type: 'SET_INVENTORY', list: Inventory[] }
+| { type: 'ADD_INVENTORY', item: Inventory };
 
 export type InventoryProviderType = {
   state: State,

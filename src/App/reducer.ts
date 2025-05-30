@@ -9,6 +9,12 @@ const reducer = (state: State, action: ActionType):State => {
         loading: false,
       };
 
+    case 'ADD_INVENTORY':
+      return {
+        ...state,
+        list: [action.item, ...state.list],
+      };
+
     default:
       throw new Error('Unhandled action');
   }
