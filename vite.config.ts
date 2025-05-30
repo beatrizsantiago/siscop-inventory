@@ -25,8 +25,7 @@ export default defineConfig({
       '@usecases': path.resolve(__dirname, 'src/usecases'),
       '@utils': path.resolve(__dirname, 'src/utils'),
       '@App': path.resolve(__dirname, 'src/App'),
-      '@generalTypes': path.resolve(__dirname, 'src/types'),
-      '@components': path.resolve(__dirname, 'src/components'),
+      '@hooks': path.resolve(__dirname, 'src/hooks'),
     },
   },
   optimizeDeps: {

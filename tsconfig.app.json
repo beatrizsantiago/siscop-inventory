@@ -31,8 +31,7 @@
       "@usecases/*": ["./src/usecases/*"],
       "@utils/*": ["./src/utils/*"],
       "@App/*": ["./src/App/*"],
-      "@generalTypes/*": ["./src/types/*"],
-      "@components/*": ["./src/components/*"],
+      "@hooks/*": ["./src/hooks/*"],
     }
   },
   "include": ["src"]
