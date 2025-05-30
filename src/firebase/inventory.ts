@@ -14,9 +14,9 @@ class FirebaseInventory implements InventoryRepository {
     const farmRef = doc(firestore, 'farms', inventory.farm.id);
 
     const inventoryData = {
-      farm: farmRef,
+      farm_id: farmRef,
       items: inventory.items.map(item => ({
-        product: doc(firestore, 'products', item.product.id),
+        product_id: doc(firestore, 'products', item.product.id),
         amount: item.amount,
       })),
       state: inventory.state,
