@@ -140,8 +140,9 @@ const FormContainer = ({ handleClose }:Props) => {
           <>
             <Grid size={6}>
               <FormControl variant="standard" fullWidth>
-                <InputLabel>Estado</InputLabel>
+                <InputLabel id="state-select">Estado</InputLabel>
                 <Select
+                  labelId="state-select"
                   value={selectedState}
                   onChange={(e) => setSelectedState(e.target.value)}
                   required
