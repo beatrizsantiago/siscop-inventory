@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import { TrashIcon } from '@phosphor-icons/react';
 import { STATE_OPTIONS } from '@utils/stateList';
 import { firebaseInventory } from '@fb/inventory';
+import { firebaseKardex } from '@fb/kardex';
 import AddInventoryUseCase from '@usecases/inventory/add';
 import useGetFarms from '@hooks/useGetFarms';
 import Farm from '@domain/entities/Farm';
@@ -51,7 +52,7 @@ const FormContainer = ({ handleClose }:Props) => {
     setLoading(true);
 
     try {
-      const addInventoryUseCase = new AddInventoryUseCase(firebaseInventory);
+      const addInventoryUseCase = new AddInventoryUseCase(firebaseInventory, firebaseKardex);
       const response = await addInventoryUseCase.execute({
         farm: selectedFarm!,
         items: productsList,
@@ -64,8 +65,17 @@ const FormContainer = ({ handleClose }:Props) => {
       });
 
       toast.success('Estoque adicionado com sucesso!');
+      setProductsList([NEW_ITEM]);
+      setSelectedFarm(null);
+      setSelectedFarm(null);
       handleClose();
-    } catch {
+    } catch (error: any) {
+      if ('message' in error && typeof error.message === 'string' && error.message.includes('INSUFFICIENT_STOCK')) {
+        const productName = error.message.split(':')[1];
+        toast.error(`Estoque insuficiente para o produto ${productName} na fazenda ${selectedFarm?.name}.`);
+        return;
+      }
+      
       toast.error('Erro ao adicionar o estoque. Tente novamente mais tarde.');
     } finally {
       setLoading(false);

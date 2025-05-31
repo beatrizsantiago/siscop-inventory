@@ -1,7 +1,7 @@
 import { InventoryRepository } from '@domain/repositories/InventoryRepository';
 import {
   addDoc, collection, doc, DocumentReference,
-  getDoc, getDocs, query, Timestamp, updateDoc, where,
+  getDoc, getDocs, orderBy, query, Timestamp,
 } from 'firebase/firestore';
 import Inventory from '@domain/entities/Inventory';
 import Product from '@domain/entities/Product';
@@ -23,48 +23,20 @@ class FirebaseInventory implements InventoryRepository {
       created_at: Timestamp.fromDate(inventory.created_at),
     };
 
-    const inventoryDocRef = await addDoc(collection(firestore, 'inventory'), inventoryData);
-
-    const kardexCollection = collection(firestore, 'kardex');
-
-    const kardexPromises = inventory.items.map(async (item) => {
-      const productRef = doc(firestore, 'products', item.product.id);
-
-      const kardexQuery = query(
-        kardexCollection,
-        where('farm_id', '==', farmRef),
-        where('product_id', '==', productRef),
-        where('state', '==', inventory.state),
-      );
-
-      const snapshot = await getDocs(kardexQuery);
-
-      if (!snapshot.empty) {
-        const kardexDoc = snapshot.docs[0];
-        const currentAmount = kardexDoc.data().amount || 0;
-        await updateDoc(kardexDoc.ref, {
-          amount: currentAmount + item.amount,
-        });
-      } else {
-        await addDoc(kardexCollection, {
-          farm_id: farmRef,
-          product_id: productRef,
-          state: inventory.state,
-          amount: item.amount,
-        });
-      }
-    });
-
-    await Promise.all(kardexPromises);
+    const docRef = await addDoc(collection(firestore, 'inventory'), inventoryData);
 
     return {
       ...inventory,
-      id: inventoryDocRef.id,
+      id: docRef.id,
     };
-  };
+  }
 
   async getAll(): Promise<Inventory[]> {
-    const inventoryQuery = query(collection(firestore, 'inventory'));
+    const inventoryQuery = query(
+      collection(firestore, 'inventory'),
+      orderBy('created_at', 'desc'),
+    );
+
     const snapshot = await getDocs(inventoryQuery);
 
     const list = await Promise.all(snapshot.docs.map(async (doc) => {
