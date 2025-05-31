@@ -1,13 +1,15 @@
 import { InventoryRepository } from '@domain/repositories/InventoryRepository';
 import {
-  addDoc, collection, doc, DocumentReference,
-  getDoc, getDocs, orderBy, query, Timestamp,
+  addDoc, collection, doc, DocumentReference, DocumentSnapshot,
+  getDoc, getDocs, limit, orderBy, query, startAfter, Timestamp,
 } from 'firebase/firestore';
 import Inventory from '@domain/entities/Inventory';
 import Product from '@domain/entities/Product';
 import Farm from '@domain/entities/Farm';
 
 import { firestore } from './config';
+
+const PAGE_SIZE = 10;
 
 class FirebaseInventory implements InventoryRepository {
   async add(inventory: Inventory): Promise<Inventory> {
@@ -31,19 +33,37 @@ class FirebaseInventory implements InventoryRepository {
     };
   }
 
-  async getAll(): Promise<Inventory[]> {
-    const inventoryQuery = query(
-      collection(firestore, 'inventory'),
+  async getAllPaginated(
+    lastDoc?: DocumentSnapshot
+  ): Promise<{
+    list: Inventory[];
+    lastDoc: DocumentSnapshot;
+    hasMore: boolean;
+  }> {
+    const inventoryRef = collection(firestore, 'inventory');
+
+    let inventoryQuery = query(
+      inventoryRef,
       orderBy('created_at', 'desc'),
+      limit(PAGE_SIZE)
     );
+
+    if (lastDoc) {
+      inventoryQuery = query(
+        inventoryRef,
+        orderBy('created_at', 'desc'),
+        startAfter(lastDoc),
+        limit(PAGE_SIZE)
+      );
+    }
 
     const snapshot = await getDocs(inventoryQuery);
 
-    const list = await Promise.all(snapshot.docs.map(async (doc) => {
-      const data = doc.data();
+    const inventories = await Promise.all(snapshot.docs.map(async (docSnap) => {
+      const data = docSnap.data();
 
       const farmRef = data.farm_id as DocumentReference;
-      let farm = null;
+      let farm: Farm | null = null;
 
       if (farmRef) {
         const farmSnap = await getDoc(farmRef);
@@ -53,7 +73,7 @@ class FirebaseInventory implements InventoryRepository {
             farmRef.id,
             farmData.name,
             farmData.geolocation,
-            farmData.available_products,
+            farmData.available_products
           );
         }
       }
@@ -61,7 +81,7 @@ class FirebaseInventory implements InventoryRepository {
       const items = await Promise.all(
         (data.items || []).map(async (itemData: any) => {
           const productRef = itemData.product_id as DocumentReference;
-          let product = null;
+          let product: Product | null = null;
 
           if (productRef) {
             const productSnap = await getDoc(productRef);
@@ -84,7 +104,7 @@ class FirebaseInventory implements InventoryRepository {
       );
 
       return new Inventory(
-        doc.id,
+        docSnap.id,
         farm!,
         items,
         data.state,
@@ -92,8 +112,14 @@ class FirebaseInventory implements InventoryRepository {
       );
     }));
 
-    return list;
-  };
+    const newLastDoc = snapshot.docs[snapshot.docs.length - 1] ?? null;
+
+    return {
+      list: inventories,
+      lastDoc: newLastDoc,
+      hasMore: snapshot.docs.length === PAGE_SIZE,
+    };
+  }
 };
 
 export const firebaseInventory = new FirebaseInventory();

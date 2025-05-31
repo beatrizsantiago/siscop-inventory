@@ -5,7 +5,9 @@ const reducer = (state: State, action: ActionType):State => {
     case 'SET_INVENTORY':
       return {
         ...state,
-        list: action.list,
+        list: [...state.list, ...action.list],
+        lastDoc: action.lastDoc || undefined,
+        hasMore: action.hasMore,
         loading: false,
       };
 
@@ -13,6 +15,12 @@ const reducer = (state: State, action: ActionType):State => {
       return {
         ...state,
         list: [action.item, ...state.list],
+      };
+
+    case 'SET_LOADING':
+      return {
+        ...state,
+        loading: action.loading,
       };
 
     default:
