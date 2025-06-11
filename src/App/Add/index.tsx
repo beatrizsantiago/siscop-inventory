@@ -23,7 +23,6 @@ const Add = () => {
       {showDialog && (
         <Dialog
           open
-          onClose={handleClose}
           fullWidth
           maxWidth="sm"
         >

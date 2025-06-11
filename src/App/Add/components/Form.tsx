@@ -17,16 +17,6 @@ import Farm from '@domain/entities/Farm';
 import Inventory from '@domain/entities/Inventory';
 import Product from '@domain/entities/Product';
 
-const NEW_ITEM = {
-  product: {
-    id: '',
-    name: '',
-    unit_value: 0,
-    cycle_days: 0,
-  },
-  amount: 0,
-};
-
 type Props = {
   handleClose: () => void;
 };
@@ -38,8 +28,31 @@ const FormContainer = ({ handleClose }:Props) => {
 
   const [loading, setLoading] = useState(false);
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
-  const [productsList, setProductsList] = useState<Inventory['items']>([NEW_ITEM]);
+  const [productsList, setProductsList] = useState<Inventory['items']>([{
+    product: {
+      id: '',
+      name: '',
+      unit_value: 0,
+      cycle_days: 0,
+    },
+    amount: 0,
+  }]);
   const [selectedState, setSelectedState] = useState('');
+
+  const clearData = () => {
+    setSelectedFarm(null);
+    setProductsList([{
+      product: {
+        id: '',
+        name: '',
+        unit_value: 0,
+        cycle_days: 0,
+      },
+      amount: 0,
+    }]);
+    setSelectedState('');
+    setLoading(false);
+  };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -65,9 +78,7 @@ const FormContainer = ({ handleClose }:Props) => {
       });
 
       toast.success('Estoque adicionado com sucesso!');
-      setProductsList([NEW_ITEM]);
-      setSelectedFarm(null);
-      setSelectedFarm(null);
+      clearData();
       handleClose();
     } catch (error: any) {
       if ('message' in error && typeof error.message === 'string' && error.message.includes('INSUFFICIENT_STOCK')) {
@@ -86,7 +97,12 @@ const FormContainer = ({ handleClose }:Props) => {
     const updatedProductsList = [...productsList];
 
     if (!product) {
-      updatedProductsList[index].product = NEW_ITEM.product;
+      updatedProductsList[index].product = {
+        id: '',
+        name: '',
+        unit_value: 0,
+        cycle_days: 0,
+      };
       setProductsList(updatedProductsList);
       return;
     }
@@ -104,13 +120,26 @@ const FormContainer = ({ handleClose }:Props) => {
   const onAddProductClick = () => {
     setProductsList([
       ...productsList,
-      NEW_ITEM,
+      {
+        product: {
+          id: '',
+          name: '',
+          unit_value: 0,
+          cycle_days: 0,
+        },
+        amount: 0,
+      },
     ]);
   };
 
   const onDeleteProductClick = (index: number) => {
     const updatedProductsList = productsList.filter((_, i) => i !== index);
     setProductsList(updatedProductsList);
+  };
+
+  const onCancelClick = () => {
+    clearData();
+    handleClose();
   };
 
   if (farmsLoading) return <CircularProgress />;
@@ -198,7 +227,7 @@ const FormContainer = ({ handleClose }:Props) => {
                   <Button
                     variant="contained"
                     color="secondary"
-                    disabled={lastProduct.product.id === '' || lastProduct.amount <= 0}
+                    disabled={lastProduct && (lastProduct.product.id === '' || lastProduct.amount <= 0)}
                     loading={loading}
                     loadingPosition="start"
                     onClick={onAddProductClick}
@@ -213,7 +242,7 @@ const FormContainer = ({ handleClose }:Props) => {
       </Grid>
 
       <Box marginTop={4} display="flex" justifyContent="space-between">
-        <Button onClick={handleClose} variant="outlined" color="error">
+        <Button onClick={onCancelClick} variant="outlined" color="error">
           Cancelar
         </Button>
         <Button
