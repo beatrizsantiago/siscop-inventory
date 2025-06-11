@@ -12,7 +12,13 @@ export default defineConfig({
       exposes: {
         './inventory-app': './src/App/index.tsx',
       },
-      shared: ['react', 'react-dom'],
+      shared: [
+        'react',
+        'react-dom',
+        '@mui/material',
+        '@emotion/react',
+        '@emotion/styled',
+      ],
     }),
   ],
   server: {
