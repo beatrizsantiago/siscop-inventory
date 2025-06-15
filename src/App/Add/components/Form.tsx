@@ -153,7 +153,7 @@ const FormContainer = ({ handleClose }:Props) => {
   return (
     <form onSubmit={onSubmit}>
       <Grid container spacing={2}>
-        <Grid size={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Autocomplete
             value={selectedFarm}
             onChange={(_, newValue) => {
@@ -167,7 +167,7 @@ const FormContainer = ({ handleClose }:Props) => {
 
         {selectedFarm && (
           <>
-            <Grid size={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControl variant="standard" fullWidth>
                 <InputLabel id="state-select">Estado</InputLabel>
                 <Select
@@ -186,17 +186,25 @@ const FormContainer = ({ handleClose }:Props) => {
             </Grid>
             {productsList.map((item, index) => (
               <React.Fragment key={index}>
-                <Grid size={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Autocomplete
                     options={availableProductsList}
-                    renderInput={(params) => <TextField {...params} label="Selecione o produto" variant="standard" required />}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Selecione o produto"
+                        variant="standard"
+                        sx={{ mt: { xs: index === 0 ? 2 : 0, md: 0 } }}
+                        required
+                      />
+                    )}
                     getOptionLabel={(option) => option.name}
                     value={item.product}
                     onChange={(_, newValue) => handleSelectProduct(index, newValue)}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                   />
                 </Grid>
-                <Grid size={5}>
+                <Grid size={{ xs: 12, md: 5 }}>
                   <TextField
                     label="Quantidade"
                     variant="standard"
@@ -207,8 +215,18 @@ const FormContainer = ({ handleClose }:Props) => {
                     required
                   />
                 </Grid>
-                <Grid size={1}>
-                  <Box display="flex" alignItems="flex-end" justifyContent="center" height="100%">
+                <Grid size={{ xs: 12, md: 1 }}>
+                  <Box display={{ xs: 'flex', md: 'none' }} justifyContent="center">
+                    <Button
+                      color="error"
+                      onClick={() => onDeleteProductClick(index)}
+                      disabled={productsList.length <= 1}
+                      variant="outlined"
+                    >
+                      Excluir item
+                    </Button>
+                  </Box>
+                  <Box display={{ xs: 'none', md: 'flex' }} alignItems="flex-end" justifyContent="center" height="100%">
                     <IconButton
                       sx={{ color: 'error.main' }}
                       onClick={() => onDeleteProductClick(index)}
