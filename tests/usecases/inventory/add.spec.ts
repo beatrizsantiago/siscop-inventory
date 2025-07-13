@@ -19,6 +19,15 @@ describe('AddInventoryUseCase', () => {
     create: jest.fn(),
   };
 
+  const mockGoalRepository = {
+    findPendingSalesGoals: jest.fn().mockResolvedValue([]),
+    markAsFinished: jest.fn(),
+  };
+
+  const mockNotificationRepository = {
+    create: jest.fn(),
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -26,7 +35,9 @@ describe('AddInventoryUseCase', () => {
   it('should throw error if origin stock is insufficient', async () => {
     const useCase = new AddInventoryUseCase(
       inventoryRepository as any,
-      kardexRepository as any
+      kardexRepository as any,
+      mockGoalRepository as any,
+      mockNotificationRepository as any
     );
 
     kardexRepository.getByFarmProductState
@@ -47,7 +58,9 @@ describe('AddInventoryUseCase', () => {
   it('should update origin and target kardex if both exist', async () => {
     const useCase = new AddInventoryUseCase(
       inventoryRepository as any,
-      kardexRepository as any
+      kardexRepository as any,
+      mockGoalRepository as any,
+      mockNotificationRepository as any
     );
 
     const originKardex = new Kardex('origin123', 'farm123', 'prod123', 'WAITING', 20);
@@ -81,7 +94,9 @@ describe('AddInventoryUseCase', () => {
   it('should create new kardex if target state does not exist', async () => {
     const useCase = new AddInventoryUseCase(
       inventoryRepository as any,
-      kardexRepository as any
+      kardexRepository as any,
+      mockGoalRepository as any,
+      mockNotificationRepository as any
     );
 
     kardexRepository.getByFarmProductState
