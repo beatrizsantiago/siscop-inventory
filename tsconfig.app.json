@@ -34,5 +34,6 @@
       "@hooks/*": ["./src/hooks/*"],
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["tests"]
 }
