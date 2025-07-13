@@ -80,6 +80,42 @@
     }
   ```
 
+<b>6. Criar índices para consultas</b>
+
+  - Este projeto utiliza de consultas compostas para as notificações, por isso você precisará [criar índices](https://firebase.google.com/docs/firestore/query-data/indexing) no Firestore. Isso pode ser feito diretamente pelo console (configuração disponível na aba de "Índices") ou seguindo as mensagens de erro que o Firestore retorna no log da aplicação.
+  - Este são os índices do projeto:
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID da coleção</th>
+        <th>Campos indexados</th>
+        <th>Escopo da consulta</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>sales</td>
+        <td>farm_id (Crescente), created_at (Crescente), __name__ (Crescente)</td>
+        <td>Coleta</td>
+        <td>Ativado</td>
+      </tr>
+      <tr>
+        <td>inventory</td>
+        <td>farm_id (Crescente), state (Crescente), created_at (Crescente), __name__ (Crescente)</td>
+        <td>Coleta</td>
+        <td>Ativado</td>
+      </tr>
+      <tr>
+        <td>goals</td>
+        <td>farm_id (Crescente), finished (Decrescente), kind (Crescente) ,created_at (Crescente), __name__ (Decrescente)</td>
+        <td>Coleta</td>
+        <td>Ativado</td>
+      </tr>
+    </tbody>
+  </table>
+
 ---
 
 ### 🎯 Getting Started
