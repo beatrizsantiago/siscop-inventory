@@ -1,8 +1,11 @@
 import { InventoryRepository } from '@domain/repositories/InventoryRepository';
 import { KardexRepository } from '@domain/repositories/KardexRepository';
+import { GoalRepository } from '@domain/repositories/GoalRepository';
+import { NotificationRepository } from '@domain/repositories/NotificationRepository';
 import Inventory from '@domain/entities/Inventory';
 import Kardex from '@domain/entities/Kardex';
 import Farm from '@domain/entities/Farm';
+import Notification from '@domain/entities/Notification';
 
 type InventoryParams = {
   farm: Farm;
@@ -13,7 +16,9 @@ type InventoryParams = {
 class AddInventoryUseCase {
   constructor(
     private inventoryRepository: InventoryRepository,
-    private kardexRepository: KardexRepository
+    private kardexRepository: KardexRepository,
+    private goalRepository: GoalRepository,
+    private notificationRepository: NotificationRepository
   ) {}
 
   async execute(params: InventoryParams): Promise<Inventory> {
@@ -51,10 +56,48 @@ class AddInventoryUseCase {
         const newKardex = new Kardex('', farmId, productId, targetState, amount);
         await this.kardexRepository.create(newKardex);
       }
-    }
+    };
+
+    if (inventory.state === 'READY') {
+      const pendingGoals = await this.goalRepository.findPendingProductionGoals(
+        inventory.farm.id,
+        new Date()
+      );
+
+      for (const goal of pendingGoals) {
+        let allItemsMet = true;
+
+        for (const goalItem of goal.items) {
+          const totalReady = await this.inventoryRepository.sumAmountSince(
+            inventory.farm.id,
+            goalItem.product_id,
+            'READY',
+            goal.created_at
+          );
+
+          if (totalReady < goalItem.amount) {
+            allItemsMet = false;
+            break;
+          }
+        }
+
+        if (allItemsMet) {
+          await this.goalRepository.markAsFinished(goal.id);
+
+          await this.notificationRepository.create(
+            new Notification(
+              '',
+              'PRODUCTION',
+              inventory.farm.name,
+              new Date()
+            )
+          );
+        };
+      };
+    };
 
     return await this.inventoryRepository.add(inventory);
-  }
-}
+  };
+};
 
 export default AddInventoryUseCase;

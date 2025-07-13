@@ -1,7 +1,8 @@
 import { InventoryRepository } from '@domain/repositories/InventoryRepository';
 import {
-  addDoc, collection, doc, DocumentReference, DocumentSnapshot,
+  addDoc, collection, doc, DocumentData, DocumentReference, DocumentSnapshot,
   getDoc, getDocs, limit, orderBy, query, startAfter, Timestamp,
+  where,
 } from 'firebase/firestore';
 import Inventory from '@domain/entities/Inventory';
 import Product from '@domain/entities/Product';
@@ -119,6 +120,38 @@ class FirebaseInventory implements InventoryRepository {
       lastDoc: newLastDoc,
       hasMore: snapshot.docs.length === PAGE_SIZE,
     };
+  }
+
+  async sumAmountSince(
+    farmId: string,
+    productId: DocumentReference,
+    state: string,
+    since: Timestamp
+  ): Promise<number> {
+    const inventoryCol = collection(firestore, 'inventory');
+    const farmRef = doc(firestore, 'farms', farmId);
+
+    const q = query(
+      inventoryCol,
+      where('farm_id', '==', farmRef),
+      where('state', '==', state),
+      where('created_at', '>=', since)
+    );
+
+    const snap = await getDocs(q);
+    let total = 0;
+
+    snap.docs.forEach(docSnap => {
+      const data = docSnap.data() as DocumentData;
+      const items: Array<{ product_id: DocumentReference; amount: number }> = data.items;
+      for (const item of items) {
+        if ((item.product_id as DocumentReference).id === productId.id) {
+          total += typeof item.amount === 'number' ? item.amount : 0;
+        }
+      }
+    });
+
+    return total;
   }
 };
 

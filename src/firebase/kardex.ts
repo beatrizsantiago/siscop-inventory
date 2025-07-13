@@ -1,4 +1,6 @@
-import { collection, doc, getDocs, query, where, updateDoc, addDoc } from 'firebase/firestore';
+import {
+  collection, doc, getDocs, query, where, updateDoc, addDoc,
+} from 'firebase/firestore';
 import { KardexRepository } from '@domain/repositories/KardexRepository';
 import Kardex from '@domain/entities/Kardex';
 

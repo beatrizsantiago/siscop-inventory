@@ -11,6 +11,8 @@ import { TrashIcon } from '@phosphor-icons/react';
 import { STATE_OPTIONS } from '@utils/stateList';
 import { firebaseInventory } from '@fb/inventory';
 import { firebaseKardex } from '@fb/kardex';
+import { firebaseGoal } from '@fb/goal';
+import { firebaseNotification } from '@fb/notification';
 import AddInventoryUseCase from '@usecases/inventory/add';
 import useGetFarms from '@hooks/useGetFarms';
 import Farm from '@domain/entities/Farm';
@@ -65,7 +67,9 @@ const FormContainer = ({ handleClose }:Props) => {
     setLoading(true);
 
     try {
-      const addInventoryUseCase = new AddInventoryUseCase(firebaseInventory, firebaseKardex);
+      const addInventoryUseCase = new AddInventoryUseCase(
+        firebaseInventory, firebaseKardex, firebaseGoal, firebaseNotification,
+      );
       const response = await addInventoryUseCase.execute({
         farm: selectedFarm!,
         items: productsList,
